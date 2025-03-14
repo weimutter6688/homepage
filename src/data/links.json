@@ -1,0 +1,25 @@
+{
+    "links": [
+        {
+            "id": "1",
+            "title": "GitHub",
+            "url": "https://github.com",
+            "description": "代码托管",
+            "category": "工作"
+        },
+        {
+            "id": "2",
+            "title": "Google",
+            "url": "https://google.com",
+            "description": "搜索引擎",
+            "category": "常用"
+        },
+        {
+            "id": "3",
+            "title": "ChatGPT",
+            "url": "https://chat.openai.com",
+            "description": "AI助手",
+            "category": "工具"
+        }
+    ]
+}
