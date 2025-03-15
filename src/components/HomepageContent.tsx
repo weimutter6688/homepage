@@ -90,10 +90,12 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
   }
   
   return (
-    <>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">我的链接 ({links.length})</h2>
-        <div className="flex gap-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex justify-between items-center mb-8 bg-white rounded-2xl shadow-sm p-6">
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900">homepage</h3>
+        </div>
+        <div className="flex gap-4 items-center">
           <SortSelector initialValue={initialSortOption} onChange={handleSortChange} />
           <AddLinkButton onAdd={() => router.refresh()} />
         </div>
@@ -101,41 +103,71 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
 
       {/* 按分类显示链接 */}
       {categories.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <p className="mb-4">还没有添加任何链接</p>
-          <p>点击右上角的&ldquo;添加链接&rdquo;按钮开始创建</p>
+        <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          <p className="mt-4 text-lg font-medium text-gray-900">还没有添加任何链接</p>
+          <p className="mt-2 text-sm text-gray-500">点击右上角的"添加链接"按钮开始创建</p>
         </div>
       ) : (
-        categories.map((category) => {
-          const categoryLinks = sortedLinks.filter((link) => link.category === category);
-          
-          if (categoryLinks.length === 0) return null;
-          
-          const isExpanded = expandedCategories[category];
-          
-          return (
-            <div key={category} className="mb-8">
-              <div 
-                className="flex items-center cursor-pointer mb-4" 
-                onClick={() => toggleCategory(category)}
-              >
-                <h2 className="text-lg font-medium text-gray-900">{category}</h2>
-                <span className="ml-2 text-gray-500 text-sm">
-                  {isExpanded ? '▼' : '►'} ({categoryLinks.length})
-                </span>
-              </div>
-              
-              {isExpanded && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {categoryLinks.map((link) => (
-                    <LinkCard key={link.id} link={link} onDelete={() => router.refresh()} />
-                  ))}
+        <div className="space-y-8">
+          {categories.map((category, index) => {
+            const categoryLinks = sortedLinks.filter((link) => link.category === category);
+            
+            if (categoryLinks.length === 0) return null;
+            
+            const isExpanded = expandedCategories[category];
+            
+            // 交替的渐变色背景
+            const gradients = [
+              'from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100',
+              'from-rose-50 to-orange-50 hover:from-rose-100 hover:to-orange-100',
+              'from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100',
+              'from-cyan-50 to-blue-50 hover:from-cyan-100 hover:to-blue-100'
+            ];
+            
+            const gradientColor = gradients[index % gradients.length];
+            const textColor = index % 2 === 0 ? 'text-indigo-600' : 'text-rose-600';
+            const hoverTextColor = index % 2 === 0 ? 'group-hover:text-indigo-700' : 'group-hover:text-rose-700';
+            const counterBg = index % 2 === 0 ? 'bg-indigo-100' : 'bg-rose-100';
+            
+            return (
+              <div key={category} className={`bg-gradient-to-r ${gradientColor} rounded-2xl shadow-sm p-6 transition-all duration-200`}>
+                <div
+                  className="flex items-center cursor-pointer group"
+                  onClick={() => toggleCategory(category)}
+                >
+                  <h2 className={`text-xl font-bold ${textColor} ${hoverTextColor} transition-colors duration-200`}>
+                    {category}
+                  </h2>
+                  <div className="ml-3 flex items-center">
+                    <span className={`${counterBg} ${textColor} px-2.5 py-0.5 rounded-full text-sm font-medium`}>
+                      {categoryLinks.length}
+                    </span>
+                    <svg
+                      className={`ml-2 h-5 w-5 ${textColor} transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
-              )}
-            </div>
-          );
-        })
+                
+                {isExpanded && (
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {categoryLinks.map((link) => (
+                      <LinkCard key={link.id} link={link} onDelete={() => router.refresh()} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
-    </>
+    </div>
   );
 }

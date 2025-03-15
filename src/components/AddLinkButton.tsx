@@ -26,11 +26,9 @@ export default function AddLinkButton({ onAdd }: AddLinkButtonProps) {
       await addLink({ title, url, description, category });
       setIsModalOpen(false);
       resetForm();
-      // 调用onAdd回调以刷新页面
       if (onAdd) {
         onAdd();
       }
-      // 触发storage事件以通知其他组件数据变化
       window.dispatchEvent(new Event('storage'));
     } catch (error) {
       console.error('添加链接失败:', error);
@@ -50,97 +48,131 @@ export default function AddLinkButton({ onAdd }: AddLinkButtonProps) {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
+        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 
+                 text-white px-5 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg
+                 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center space-x-2"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
         </svg>
-        添加链接
+        <span>添加链接</span>
       </button>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-medium mb-4">添加新链接</h3>
-            
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                  标题 *
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  required
-                />
-              </div>
-              
-              <div className="mb-4">
-                <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-1">
-                  URL *
-                </label>
-                <input
-                  type="url"
-                  id="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  required
-                />
-              </div>
-              
-              <div className="mb-4">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                  描述
-                </label>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  rows={2}
-                />
-              </div>
-              
-              <div className="mb-4">
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  分类 *
-                </label>
-                <input
-                  type="text"
-                  id="category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
-                  required
-                  placeholder="例如：工作、学习、娱乐"
-                />
-              </div>
-              
-              <div className="flex justify-end gap-2">
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity" />
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div className="relative transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all w-full max-w-md p-8">
+              <div className="absolute right-4 top-4">
                 <button
-                  type="button"
                   onClick={() => {
                     setIsModalOpen(false);
                     resetForm();
                   }}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md"
-                  disabled={isSubmitting}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? '添加中...' : '添加'}
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
-            </form>
+              
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">添加新链接</h3>
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-900 mb-2">
+                    标题 *
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="block w-full rounded-lg border-gray-200 border px-4 py-3 text-gray-900 focus:border-indigo-500 
+                             focus:ring-indigo-500 shadow-sm transition-colors duration-200"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="url" className="block text-sm font-medium text-gray-900 mb-2">
+                    URL *
+                  </label>
+                  <input
+                    type="url"
+                    id="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="block w-full rounded-lg border-gray-200 border px-4 py-3 text-gray-900 focus:border-indigo-500 
+                             focus:ring-indigo-500 shadow-sm transition-colors duration-200"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-900 mb-2">
+                    描述
+                  </label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="block w-full rounded-lg border-gray-200 border px-4 py-3 text-gray-900 focus:border-indigo-500 
+                             focus:ring-indigo-500 shadow-sm transition-colors duration-200"
+                    rows={3}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="category" className="block text-sm font-medium text-gray-900 mb-2">
+                    分类 *
+                  </label>
+                  <input
+                    type="text"
+                    id="category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="block w-full rounded-lg border-gray-200 border px-4 py-3 text-gray-900 focus:border-indigo-500 
+                             focus:ring-indigo-500 shadow-sm transition-colors duration-200"
+                    required
+                    placeholder="例如：工作、学习、娱乐"
+                  />
+                </div>
+                
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      resetForm();
+                    }}
+                    className="px-5 py-2.5 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 
+                             transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    disabled={isSubmitting}
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 
+                             hover:from-indigo-500 hover:to-purple-500 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 
+                             transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center space-x-2">
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <span>添加中...</span>
+                      </div>
+                    ) : '添加'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
