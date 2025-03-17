@@ -11,9 +11,9 @@ export default function BackupRestore({ onRestore }: BackupRestoreProps) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      const links = getAllLinks();
+      const links = await getAllLinks();
       const dataStr = JSON.stringify(links, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
@@ -45,7 +45,19 @@ export default function BackupRestore({ onRestore }: BackupRestoreProps) {
         throw new Error('无效的备份文件格式');
       }
 
-      localStorage.setItem('homepage_links', JSON.stringify(importedData));
+      // 通过API导入数据
+      const response = await fetch('/api/links', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'import', data: importedData }),
+      });
+
+      if (!response.ok) {
+        throw new Error('导入失败');
+      }
+
       onRestore();
       setSuccess('数据已成功导入');
       setTimeout(() => setSuccess(''), 3000);
@@ -80,7 +92,7 @@ export default function BackupRestore({ onRestore }: BackupRestoreProps) {
       <button
         onClick={handleExport}
         className="px-3 py-1 text-sm font-medium text-white bg-green-600 rounded-md 
-                 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
         title="导出所有链接到JSON文件"
       >
         导出备份
@@ -88,8 +100,8 @@ export default function BackupRestore({ onRestore }: BackupRestoreProps) {
 
       {/* 导入按钮 */}
       <label className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded-md 
-                      hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
-                      cursor-pointer">
+                       hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
+                       cursor-pointer">
         导入备份
         <input
           type="file"

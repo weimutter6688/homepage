@@ -1,25 +1,30 @@
-{
-    "links": [
-        {
-            "id": "1",
-            "title": "GitHub",
-            "url": "https://github.com",
-            "description": "代码托管",
-            "category": "工作"
-        },
-        {
-            "id": "2",
-            "title": "Google",
-            "url": "https://google.com",
-            "description": "搜索引擎",
-            "category": "常用"
-        },
-        {
-            "id": "3",
-            "title": "ChatGPT",
-            "url": "https://chat.openai.com",
-            "description": "AI助手",
-            "category": "工具"
-        }
-    ]
-}
+[
+  {
+    "id": "174192342273364",
+    "title": "firefox",
+    "url": "http://100.103.221.117:5810/",
+    "description": "oracle phone",
+    "category": "firefox"
+  },
+  {
+    "id": "174195827011858",
+    "title": "github",
+    "url": "https://github.com",
+    "description": "代码托管平台",
+    "category": "code"
+  },
+  {
+    "id": "1742190842938857",
+    "title": "nas",
+    "url": "http://100.78.187.62:5000",
+    "description": "nas@home",
+    "category": "home"
+  },
+  {
+    "id": "174219088579119",
+    "title": "new api",
+    "url": "http://100.78.187.62:32768",
+    "description": "new api@home",
+    "category": "home"
+  }
+]

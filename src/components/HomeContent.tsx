@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import AddLinkButton from './AddLinkButton';
 import LinkCard from './LinkCard';
 import SortSelector from './SortSelector';
@@ -13,13 +12,13 @@ interface HomeContentProps {
 }
 
 export default function HomeContent({ initialSortOption }: HomeContentProps) {
-  const router = useRouter();
   const [links, setLinks] = useState<Link[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [sortOption, setSortOption] = useState(initialSortOption);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const getCookie = (name: string) => {
@@ -32,9 +31,23 @@ export default function HomeContent({ initialSortOption }: HomeContentProps) {
     const authToken = getCookie('auth_token');
     if (authToken === process.env.NEXT_PUBLIC_ACCESS_TOKEN) {
       setIsAuthenticated(true);
-      setLinks(getAllLinks());
+      loadLinks();
+    } else {
+      setIsLoading(false);
     }
   }, []);
+
+  const loadLinks = async () => {
+    try {
+      setIsLoading(true);
+      const linkData = await getAllLinks();
+      setLinks(linkData);
+    } catch (err) {
+      console.error('加载链接失败:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +55,7 @@ export default function HomeContent({ initialSortOption }: HomeContentProps) {
       document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
       setIsAuthenticated(true);
       setError('');
-      router.refresh(); // 刷新页面以更新服务器组件
+      loadLinks();
     } else {
       setError('访问令牌无效');
     }
@@ -53,7 +66,6 @@ export default function HomeContent({ initialSortOption }: HomeContentProps) {
     setIsAuthenticated(false);
     setLinks([]);
     setToken('');
-    router.refresh(); // 刷新页面以更新服务器组件
   };
 
   const categories = Array.from(new Set(links.map(link => link.category))).sort();
@@ -73,8 +85,7 @@ export default function HomeContent({ initialSortOption }: HomeContentProps) {
   };
 
   const handleRestore = () => {
-    setLinks(getAllLinks());
-    router.refresh(); // 刷新页面以确保数据同步
+    loadLinks();
   };
 
   const sortedLinks = [...links].sort((a, b) => {
@@ -116,12 +127,23 @@ export default function HomeContent({ initialSortOption }: HomeContentProps) {
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 
-                       text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg 
-                       transform hover:-translate-y-0.5 transition-all duration-200"
+                        text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg 
+                        transform hover:-translate-y-0.5 transition-all duration-200"
             >
               验证
             </button>
           </form>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">加载中...</p>
         </div>
       </div>
     );
@@ -136,10 +158,7 @@ export default function HomeContent({ initialSortOption }: HomeContentProps) {
         <div className="flex items-center gap-4">
           <BackupRestore onRestore={handleRestore} />
           <SortSelector initialValue={initialSortOption} onChange={handleSortChange} />
-          <AddLinkButton onAdd={() => {
-            setLinks(getAllLinks());
-            router.refresh();
-          }} />
+          <AddLinkButton onAdd={loadLinks} />
           <button
             onClick={handleLogout}
             className="text-sm text-gray-600 hover:text-gray-900 underline"
@@ -208,10 +227,7 @@ export default function HomeContent({ initialSortOption }: HomeContentProps) {
                       <LinkCard 
                         key={link.id} 
                         link={link} 
-                        onDelete={() => {
-                          setLinks(getAllLinks());
-                          router.refresh();
-                        }} 
+                        onDelete={loadLinks}
                       />
                     ))}
                   </div>
