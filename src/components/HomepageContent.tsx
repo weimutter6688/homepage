@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import AddLinkButton from './AddLinkButton';
 import LinkCard from './LinkCard';
 import SortSelector from './SortSelector';
+import BackupRestore from './BackupRestore';
 import { getAllLinks, Link, isAuthenticated } from '../utils/linksService';
 
 interface HomepageContentProps {
@@ -49,6 +50,10 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
     window.history.pushState({}, '', url.toString());
   };
 
+  const handleRestore = () => {
+    setLinks(getAllLinks());
+  };
+
   const sortedLinks = [...links].sort((a, b) => {
     switch (sortOption) {
       case 'alpha':
@@ -67,6 +72,7 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
           <h3 className="text-2xl font-bold text-gray-900">homepage</h3>
         </div>
         <div className="flex gap-4 items-center">
+          <BackupRestore onRestore={handleRestore} />
           <SortSelector initialValue={initialSortOption} onChange={handleSortChange} />
           <AddLinkButton onAdd={() => router.refresh()} />
         </div>
