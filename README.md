@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Homepage
 
-## Getting Started
+个人主页链接管理系统
 
-First, run the development server:
+## 功能特点
 
+- 链接分类管理
+- 支持排序
+- 令牌验证访问控制
+- 响应式设计
+
+## 开发环境设置
+
+1. 克隆仓库：
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd homepage
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. 安装依赖：
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. 配置环境变量：
+```bash
+# 复制环境变量示例文件
+cp .env.example .env
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 生成访问令牌（使用 OpenSSL）
+# 此命令会生成一个 32 位的随机令牌
+openssl rand -base64 32 | tr -d '/+=' | cut -c1-32
+```
 
-## Learn More
+将生成的令牌添加到 `.env` 文件中：
+```env
+NEXT_PUBLIC_ACCESS_TOKEN=your-generated-token
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. 启动开发服务器：
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+现在你可以访问 http://localhost:3000 来查看应用。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 使用说明
 
-## Deploy on Vercel
+1. 首次访问时需要输入访问令牌进行验证
+2. 验证通过后可以查看、添加、编辑和删除链接
+3. 支持按分类组织链接
+4. 可以按字母顺序或添加时间排序
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 构建部署
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# 构建生产版本
+npm run build
+
+# 启动生产服务
+npm start
+```
+
+## 安全说明
+
+- 请妥善保管访问令牌
+- 建议定期更换令牌
+- 不要在公共场合泄露令牌
+
+## 技术栈
+
+- Next.js 14
+- React
+- TypeScript
+- Tailwind CSS
