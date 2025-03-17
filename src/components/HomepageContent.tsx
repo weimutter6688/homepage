@@ -24,10 +24,16 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
       return;
     }
     
-    setLinks(getAllLinks());
+    const loadLinks = async () => {
+      const fetchedLinks = await getAllLinks();
+      setLinks(fetchedLinks);
+    };
+    
+    loadLinks();
 
-    const handleStorageChange = () => {
-      setLinks(getAllLinks());
+    const handleStorageChange = async () => {
+      const fetchedLinks = await getAllLinks();
+      setLinks(fetchedLinks);
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -50,8 +56,9 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
     window.history.pushState({}, '', url.toString());
   };
 
-  const handleRestore = () => {
-    setLinks(getAllLinks());
+  const handleRestore = async () => {
+    const fetchedLinks = await getAllLinks();
+    setLinks(fetchedLinks);
   };
 
   const sortedLinks = [...links].sort((a, b) => {

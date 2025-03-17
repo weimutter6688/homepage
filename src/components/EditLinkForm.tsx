@@ -25,20 +25,24 @@ export default function EditLinkForm({ id }: EditLinkFormProps) {
     }
 
     // 加载链接数据
-    try {
-      const link = getLinkById(id);
-      if (link) {
-        setTitle(link.title);
-        setUrl(link.url);
-        setDescription(link.description || '');
-        setCategory(link.category);
-      } else {
-        setError('链接不存在');
+    const fetchLink = async () => {
+      try {
+        const link = await getLinkById(id);
+        if (link) {
+          setTitle(link.title);
+          setUrl(link.url);
+          setDescription(link.description || '');
+          setCategory(link.category);
+        } else {
+          setError('链接不存在');
+        }
+      } catch (error) {
+        console.error('加载链接失败:', error);
+        setError(error instanceof Error ? error.message : '加载链接失败');
       }
-    } catch (error) {
-      console.error('加载链接失败:', error);
-      setError(error instanceof Error ? error.message : '加载链接失败');
-    }
+    };
+    
+    fetchLink();
   }, [id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
