@@ -1,0 +1,14 @@
+# 数据文件
+src/data/links.json
+
+# 构建输出
+.next
+out
+build
+dist
+
+# 依赖
+node_modules
+
+# 其他
+.git

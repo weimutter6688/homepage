@@ -5,3 +5,6 @@ node_modules
 dist
 build
 *.log
+
+# 私密数据文件
+src/data/links.json
