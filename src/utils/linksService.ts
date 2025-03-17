@@ -12,10 +12,23 @@ export interface Link {
 // 存储键名
 const LINKS_STORAGE_KEY = 'homepage_links';
 
+// 检查是否已认证
+export function isAuthenticated(): boolean {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    const token = localStorage.getItem('auth_token');
+    return token === process.env.NEXT_PUBLIC_ACCESS_TOKEN;
+}
+
 // 获取所有链接
 export function getAllLinks(): Link[] {
+    if (!isAuthenticated()) {
+        return [];
+    }
+
     if (typeof window === 'undefined') {
-        return []; // 服务器端返回空数组
+        return [];
     }
 
     const linksJson = localStorage.getItem(LINKS_STORAGE_KEY);
@@ -47,20 +60,18 @@ export function getAllCategories(): string[] {
 
 // 添加新链接
 export async function addLink(linkData: Omit<Link, 'id'>): Promise<Link> {
+    if (!isAuthenticated()) {
+        throw new Error('未经授权的操作');
+    }
+
     const links = getAllLinks();
-
-    // 生成新ID (简单实现，使用时间戳+随机数)
     const newId = Date.now().toString() + Math.floor(Math.random() * 1000);
-
     const newLink: Link = {
         id: newId,
         ...linkData
     };
 
-    // 添加到链接列表
     const updatedLinks = [...links, newLink];
-
-    // 保存到localStorage
     localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(updatedLinks));
 
     return newLink;
@@ -71,6 +82,10 @@ export async function updateLink(
     id: string,
     linkData: Omit<Link, 'id'>
 ): Promise<Link | null> {
+    if (!isAuthenticated()) {
+        throw new Error('未经授权的操作');
+    }
+
     const links = getAllLinks();
     const linkIndex = links.findIndex(link => link.id === id);
 
@@ -78,15 +93,12 @@ export async function updateLink(
         return null;
     }
 
-    // 更新链接
     const updatedLink: Link = {
         id,
         ...linkData
     };
 
     links[linkIndex] = updatedLink;
-
-    // 保存到localStorage
     localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(links));
 
     return updatedLink;
@@ -94,24 +106,28 @@ export async function updateLink(
 
 // 删除链接
 export async function deleteLink(id: string): Promise<boolean> {
+    if (!isAuthenticated()) {
+        throw new Error('未经授权的操作');
+    }
+
     const links = getAllLinks();
     const filteredLinks = links.filter(link => link.id !== id);
 
-    // 如果长度相同，说明没有找到要删除的链接
     if (filteredLinks.length === links.length) {
         return false;
     }
 
-    // 保存到localStorage
     localStorage.setItem(LINKS_STORAGE_KEY, JSON.stringify(filteredLinks));
-
     return true;
 }
 
 // 根据ID获取单个链接
 export function getLinkById(id: string): Link | null {
+    if (!isAuthenticated()) {
+        throw new Error('未经授权的操作');
+    }
+
     const links = getAllLinks();
     const link = links.find(link => link.id === id);
-
     return link || null;
 }

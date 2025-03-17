@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { addLink } from '@/utils/linksService';
+import { addLink, isAuthenticated } from '../utils/linksService';
 
 interface AddLinkButtonProps {
   onAdd?: () => void;
@@ -14,14 +14,27 @@ export default function AddLinkButton({ onAdd }: AddLinkButtonProps) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const resetForm = () => {
+    setTitle('');
+    setUrl('');
+    setDescription('');
+    setCategory('');
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!title || !url || !category) return;
-    
     setIsSubmitting(true);
-    
+    setError('');
+
+    if (!isAuthenticated()) {
+      setError('请先进行令牌验证');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await addLink({ title, url, description, category });
       setIsModalOpen(false);
@@ -32,16 +45,10 @@ export default function AddLinkButton({ onAdd }: AddLinkButtonProps) {
       window.dispatchEvent(new Event('storage'));
     } catch (error) {
       console.error('添加链接失败:', error);
+      setError(error instanceof Error ? error.message : '添加链接失败');
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const resetForm = () => {
-    setTitle('');
-    setUrl('');
-    setDescription('');
-    setCategory('');
   };
 
   return (
@@ -78,6 +85,12 @@ export default function AddLinkButton({ onAdd }: AddLinkButtonProps) {
               </div>
               
               <h3 className="text-2xl font-bold text-gray-900 mb-6">添加新链接</h3>
+              
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>

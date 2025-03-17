@@ -1,60 +1,40 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getAllLinks, getAllCategories, Link } from '@/utils/linksService';
-import LinkCard from '@/components/LinkCard';
-import SortSelector from '@/components/SortSelector';
-import AddLinkButton from '@/components/AddLinkButton';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import AddLinkButton from './AddLinkButton';
+import LinkCard from './LinkCard';
+import SortSelector from './SortSelector';
+import { getAllLinks, Link, isAuthenticated } from '../utils/linksService';
 
 interface HomepageContentProps {
   initialSortOption: string;
 }
 
 export default function HomepageContent({ initialSortOption }: HomepageContentProps) {
-  const [links, setLinks] = useState<Link[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  // 添加分类折叠状态
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const router = useRouter();
-  
-  // 获取链接和分类数据
-  useEffect(() => {
-    const fetchData = () => {
-      try {
-        const linksData = getAllLinks();
-        const categoriesData = getAllCategories();
-        setLinks(linksData);
-        setCategories(categoriesData);
-        
-        // 初始化所有分类为展开状态
-        const initialExpandState: Record<string, boolean> = {};
-        categoriesData.forEach(category => {
-          initialExpandState[category] = true; // 默认展开
-        });
-        setExpandedCategories(initialExpandState);
-      } catch (error) {
-        console.error('获取数据错误:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchData();
-    
-    // 添加事件监听器，在localStorage变化时刷新数据
-    const handleStorageChange = () => {
-      fetchData();
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
+  const [links, setLinks] = useState<Link[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [sortOption, setSortOption] = useState(initialSortOption);
 
-  // 处理分类的展开/折叠
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.push('/');
+      return;
+    }
+    
+    setLinks(getAllLinks());
+
+    const handleStorageChange = () => {
+      setLinks(getAllLinks());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [router]);
+
+  const categories = Array.from(new Set(links.map(link => link.category))).sort();
+
   const toggleCategory = (category: string) => {
     setExpandedCategories(prev => ({
       ...prev,
@@ -62,32 +42,23 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
     }));
   };
 
-  // 处理排序
-  const sortLinks = (links: Link[], sortOption: string) => {
-    const sortedLinks = [...links];
-    if (sortOption === 'alpha') {
-      sortedLinks.sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortOption === 'recent') {
-      // 根据ID排序，假设ID是按添加顺序递增的
-      sortedLinks.sort((a, b) => parseInt(b.id) - parseInt(a.id));
-    }
-    return sortedLinks;
+  const handleSortChange = (newSortOption: string) => {
+    setSortOption(newSortOption);
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', newSortOption);
+    window.history.pushState({}, '', url.toString());
   };
 
-  const sortedLinks = sortLinks(links, initialSortOption);
-  
-  // 处理排序变化
-  const handleSortChange = (newSortOption: string) => {
-    router.push(`/?sort=${newSortOption}`);
-  };
-  
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <p className="text-gray-500">加载中...</p>
-      </div>
-    );
-  }
+  const sortedLinks = [...links].sort((a, b) => {
+    switch (sortOption) {
+      case 'alpha':
+        return a.title.localeCompare(b.title);
+      case 'recent':
+        return parseInt(b.id) - parseInt(a.id);
+      default:
+        return 0;
+    }
+  });
   
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -108,7 +79,7 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           <p className="mt-4 text-lg font-medium text-gray-900">还没有添加任何链接</p>
-          <p className="mt-2 text-sm text-gray-500">点击右上角的"添加链接"按钮开始创建</p>
+          <p className="mt-2 text-sm text-gray-500">点击右上角的&quot;添加链接&quot;按钮开始创建</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -119,7 +90,6 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
             
             const isExpanded = expandedCategories[category];
             
-            // 交替的渐变色背景
             const gradients = [
               'from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100',
               'from-rose-50 to-orange-50 hover:from-rose-100 hover:to-orange-100',
@@ -159,7 +129,11 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
                 {isExpanded && (
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {categoryLinks.map((link) => (
-                      <LinkCard key={link.id} link={link} onDelete={() => router.refresh()} />
+                      <LinkCard 
+                        key={link.id} 
+                        link={link} 
+                        onDelete={() => router.refresh()} 
+                      />
                     ))}
                   </div>
                 )}
