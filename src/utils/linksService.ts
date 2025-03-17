@@ -12,12 +12,21 @@ export interface Link {
 // 存储键名
 const LINKS_STORAGE_KEY = 'homepage_links';
 
+// 获取 cookie
+function getCookie(name: string): string | undefined {
+    if (typeof document === 'undefined') return undefined;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return undefined;
+}
+
 // 检查是否已认证
 export function isAuthenticated(): boolean {
     if (typeof window === 'undefined') {
         return false;
     }
-    const token = localStorage.getItem('auth_token');
+    const token = getCookie('auth_token');
     return token === process.env.NEXT_PUBLIC_ACCESS_TOKEN;
 }
 
