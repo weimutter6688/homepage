@@ -26,7 +26,7 @@ export default function BackupRestore({ onRestore }: BackupRestoreProps) {
       URL.revokeObjectURL(url);
       setSuccess('备份文件已下载');
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
+    } catch {
       setError('导出失败');
       setTimeout(() => setError(''), 3000);
     }
@@ -49,7 +49,7 @@ export default function BackupRestore({ onRestore }: BackupRestoreProps) {
       onRestore();
       setSuccess('数据已成功导入');
       setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
+    } catch {
       setError('导入失败：请确保文件格式正确');
       setTimeout(() => setError(''), 3000);
     }
@@ -58,14 +58,19 @@ export default function BackupRestore({ onRestore }: BackupRestoreProps) {
     event.target.value = '';
   };
 
-  const isValidLink = (link: any): link is Link => {
+  const isValidLink = (link: unknown): link is Link => {
     return (
       typeof link === 'object' &&
-      typeof link.id === 'string' &&
-      typeof link.title === 'string' &&
-      typeof link.url === 'string' &&
-      typeof link.category === 'string' &&
-      (link.description === undefined || typeof link.description === 'string')
+      link !== null &&
+      'id' in link &&
+      'title' in link &&
+      'url' in link &&
+      'category' in link &&
+      typeof (link as Link).id === 'string' &&
+      typeof (link as Link).title === 'string' &&
+      typeof (link as Link).url === 'string' &&
+      typeof (link as Link).category === 'string' &&
+      ((link as Link).description === undefined || typeof (link as Link).description === 'string')
     );
   };
 
