@@ -73,7 +73,7 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
   });
   
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8 bg-white rounded-2xl shadow-sm p-6">
         <div>
           <h3 className="text-2xl font-bold text-gray-900">homepage</h3>
@@ -85,7 +85,6 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
         </div>
       </div>
 
-      {/* 按分类显示链接 */}
       {categories.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +94,7 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
           <p className="mt-2 text-sm text-gray-500">点击右上角的&quot;添加链接&quot;按钮开始创建</p>
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-8 lg:grid lg:grid-cols-2 lg:gap-8 lg:space-y-0">
           {categories.map((category, index) => {
             const categoryLinks = sortedLinks.filter((link) => link.category === category);
             
@@ -116,40 +115,48 @@ export default function HomepageContent({ initialSortOption }: HomepageContentPr
             const counterBg = index % 2 === 0 ? 'bg-indigo-100' : 'bg-rose-100';
             
             return (
-              <div key={category} className={`bg-gradient-to-r ${gradientColor} rounded-2xl shadow-sm p-6 transition-all duration-200`}>
-                <div
-                  className="flex items-center cursor-pointer group"
-                  onClick={() => toggleCategory(category)}
-                >
-                  <h2 className={`text-xl font-bold ${textColor} ${hoverTextColor} transition-colors duration-200`}>
-                    {category}
-                  </h2>
-                  <div className="ml-3 flex items-center">
-                    <span className={`${counterBg} ${textColor} px-2.5 py-0.5 rounded-full text-sm font-medium`}>
-                      {categoryLinks.length}
-                    </span>
-                    <svg
-                      className={`ml-2 h-5 w-5 ${textColor} transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+              <div
+                key={category}
+                className={`bg-gradient-to-r ${gradientColor} rounded-2xl shadow-sm p-6 transition-all duration-200`}
+              >
+                <div className="max-h-[600px] flex flex-col">
+                  <div className="flex-shrink-0">
+                    <div
+                      className="flex items-center cursor-pointer group"
+                      onClick={() => toggleCategory(category)}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                      <h2 className={`text-xl font-bold ${textColor} ${hoverTextColor} transition-colors duration-200`}>
+                        {category}
+                      </h2>
+                      <div className="ml-3 flex items-center">
+                        <span className={`${counterBg} ${textColor} px-2.5 py-0.5 rounded-full text-sm font-medium`}>
+                          {categoryLinks.length}
+                        </span>
+                        <svg
+                          className={`ml-2 h-5 w-5 ${textColor} transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
+                  {isExpanded && (
+                    <div className="mt-4 flex-1 overflow-y-auto">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {categoryLinks.slice(0, 5).map((link) => (
+                          <LinkCard 
+                            key={link.id} 
+                            link={link} 
+                            onDelete={() => router.refresh()} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                
-                {isExpanded && (
-                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {categoryLinks.map((link) => (
-                      <LinkCard 
-                        key={link.id} 
-                        link={link} 
-                        onDelete={() => router.refresh()} 
-                      />
-                    ))}
-                  </div>
-                )}
               </div>
             );
           })}
